@@ -631,6 +631,7 @@ class MODEL_ARCH(IntEnum):
     NANBEIGE         = auto()
     QWEN3TTS         = auto()
     POCKETTTS        = auto()
+    ZGCM             = auto()
 
 
 class VISION_PROJECTOR_TYPE(IntEnum):
@@ -1378,6 +1379,7 @@ MODEL_ARCH_NAMES: dict[MODEL_ARCH, str] = {
     MODEL_ARCH.MIMO2:            "mimo2",
     MODEL_ARCH.STEP35:           "step35",
     MODEL_ARCH.SPARK2_5:         "spark2_5",
+    MODEL_ARCH.ZGCM:             "zgcm",
     MODEL_ARCH.LLAMA_EMBED:      "llama-embed",
     MODEL_ARCH.MAINCODER:        "maincoder",
     MODEL_ARCH.KIMI_LINEAR:      "kimi-linear",
@@ -5336,6 +5338,23 @@ MODEL_TENSORS: dict[MODEL_ARCH, list[MODEL_TENSOR]] = {
         MODEL_TENSOR.OUTPUT,
         MODEL_TENSOR.ATTN_NORM,
         MODEL_TENSOR.ATTN_QKV,
+        MODEL_TENSOR.ATTN_GATE,
+        MODEL_TENSOR.ATTN_OUT,
+        MODEL_TENSOR.FFN_NORM,
+        MODEL_TENSOR.FFN_GATE,
+        MODEL_TENSOR.FFN_DOWN,
+        MODEL_TENSOR.FFN_UP,
+    ],
+    MODEL_ARCH.ZGCM: [
+        MODEL_TENSOR.TOKEN_EMBD,
+        MODEL_TENSOR.OUTPUT_NORM,
+        MODEL_TENSOR.OUTPUT,
+        MODEL_TENSOR.ATTN_NORM,
+        MODEL_TENSOR.ATTN_Q,
+        MODEL_TENSOR.ATTN_K,
+        MODEL_TENSOR.ATTN_V,
+        MODEL_TENSOR.ATTN_Q_NORM,
+        MODEL_TENSOR.ATTN_K_NORM,
         MODEL_TENSOR.ATTN_GATE,
         MODEL_TENSOR.ATTN_OUT,
         MODEL_TENSOR.FFN_NORM,

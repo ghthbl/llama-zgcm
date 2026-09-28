@@ -1,3 +1,5 @@
+> **ZGCM community fork:** This branch adds support for [zgcagi/ZGCM-1-7B](https://huggingface.co/zgcagi/ZGCM-1-7B). See [build and usage notes](docs/ZGCM.md) and [GGUF files plus imatrix](https://huggingface.co/0xtb/ZGCM-1-7B-GGUF). Model authorship remains with ZGCAGI.
+
 # llama.cpp
 
 ![llama](https://raw.githubusercontent.com/ggml-org/llama.brand/refs/heads/master/cover/llama-cpp/cover-llama-cpp-dark.svg)
