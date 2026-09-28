@@ -9,8 +9,8 @@ Based on llama.cpp commit 41abbfd599fbdd3470fcae0a1fb6530ad8403cd7. The source d
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_METAL=ON
 cmake --build build --config Release -j 8 --target llama-server llama-cli llama-quantize llama-imatrix
-hf download 0xtb/ZGCM-1-7B-GGUF ZGCM-1-7B-Q6_K-IMATRIX-BF16-down28-31.gguf --local-dir .
-./build/bin/llama-server -m ZGCM-1-7B-Q6_K-IMATRIX-BF16-down28-31.gguf -c 131072 -ngl 99 -fa on -np 1 --jinja --host 127.0.0.1 --port 8080
+hf download 0xtb/ZGCM-1-7B-GGUF ZGCM-1-7B-BF16-down28-31-IMATRIX-Q6_K.gguf --local-dir .
+./build/bin/llama-server -m ZGCM-1-7B-BF16-down28-31-IMATRIX-Q6_K.gguf -c 131072 -ngl 99 -fa on -np 1 --jinja --host 127.0.0.1 --port 8080
 ```
 
 The model supports context up to 262144. Set -c explicitly. Its existing chat template supports thinking and direct-response modes. Raw text completion and reliable agent tool calling are not recommended as validated use cases. The model can collapse into repeated exclamation marks, including with original BF16 weights; read the model card before use.
@@ -18,8 +18,8 @@ The model supports context up to 262144. Set -c explicitly. Its existing chat te
 Conversion requires a complete local original HF snapshot and the normal convert_hf_to_gguf.py dependencies:
 
 ```bash
-python convert_hf_to_gguf.py /path/to/ZGCM-1-7B --outtype f16 --outfile ZGCM-1-7B-F16-BF16-downall32.gguf
-python scripts/verify-zgcm-gguf.py ZGCM-1-7B-F16-BF16-downall32.gguf --hf-model /path/to/ZGCM-1-7B
+python convert_hf_to_gguf.py /path/to/ZGCM-1-7B --outtype f16 --outfile ZGCM-1-7B-BF16-downall32-F16.gguf
+python scripts/verify-zgcm-gguf.py ZGCM-1-7B-BF16-downall32-F16.gguf --hf-model /path/to/ZGCM-1-7B
 ```
 
 The converter retains every FFN down-projection as BF16. Quantization must preserve layers 28-31 as BF16; use the model card's explicit tensor override. The imatrix is calibration data and is hosted with the weights, not in this source repository.

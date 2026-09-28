@@ -31,10 +31,10 @@ cd llama-zgcm
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_METAL=ON
 cmake --build build --config Release -j 8 --target llama-server llama-cli llama-quantize llama-imatrix
 
-hf download 0xtb/ZGCM-1-7B-GGUF ZGCM-1-7B-Q6_K-IMATRIX-BF16-down28-31.gguf --local-dir .
+hf download 0xtb/ZGCM-1-7B-GGUF ZGCM-1-7B-BF16-down28-31-IMATRIX-Q6_K.gguf --local-dir .
 
 ./build/bin/llama-server \
-    -m ZGCM-1-7B-Q6_K-IMATRIX-BF16-down28-31.gguf \
+    -m ZGCM-1-7B-BF16-down28-31-IMATRIX-Q6_K.gguf \
     -c 131072 -ngl 99 -fa on -np 1 --jinja \
     --host 127.0.0.1 --port 8080
 ```
