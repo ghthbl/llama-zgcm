@@ -1,128 +1,68 @@
-> **ZGCM community fork:** This branch adds support for [zgcagi/ZGCM-1-7B](https://huggingface.co/zgcagi/ZGCM-1-7B). See [build and usage notes](docs/ZGCM.md) and [GGUF files plus imatrix](https://huggingface.co/0xtb/ZGCM-1-7B-GGUF). Model authorship remains with ZGCAGI.
+# llama-zgcm
 
-# llama.cpp
+**An independent community fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) for [ZGCAGI's ZGCM-1-7B](https://huggingface.co/zgcagi/ZGCM-1-7B).**
 
-![llama](https://raw.githubusercontent.com/ggml-org/llama.brand/refs/heads/master/cover/llama-cpp/cover-llama-cpp-dark.svg)
+> This is **not the official llama.cpp repository** and is not affiliated with or endorsed by the llama.cpp maintainers or ZGCAGI. For the official project, releases and general-purpose documentation, visit **[ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)**.
 
-<div align="center">
+This fork makes ZGCM-1-7B available for local inference through llama.cpp. The original model was trained by ZGCAGI. This project contributes the conversion, runtime support and local evaluation; it does not claim authorship of the model and does not contain a fine-tune.
 
-<b>LLM inference in C/C++</b>
+## Downloads and documentation
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/github/v/release/ggml-org/llama.cpp?filter=v*&color=brightgreen)](https://github.com/ggml-org/llama.cpp/releases?q=tag:v0)
-[![Nightly](https://img.shields.io/github/v/release/ggml-org/llama.cpp?label=nightly&filter=b*&color=orange)](https://github.com/ggml-org/llama.cpp/releases?q=b)
-[![Server](https://img.shields.io/github/actions/workflow/status/ggml-org/llama.cpp/server.yml?label=Server)](https://github.com/ggml-org/llama.cpp/actions/workflows/server.yml)
-[![Docker](https://img.shields.io/github/actions/workflow/status/ggml-org/llama.cpp/docker.yml?label=Docker)](https://github.com/ggml-org/llama.cpp/actions/workflows/docker.yml)
-[![Winget](https://img.shields.io/github/actions/workflow/status/ggml-org/llama.cpp/winget.yml?label=Winget)](https://github.com/ggml-org/llama.cpp/actions/workflows/winget.yml)
+- **[GGUF models and importance matrix on Hugging Face](https://huggingface.co/0xtb/ZGCM-1-7B-GGUF)**: Q8_0, Q6_K, Q5_K_M, the mixed F16/BF16 reference, checksums, calibration details and evaluation results. Start with Q6_K for a balance of size and fidelity.
+- **[This fork's releases](https://github.com/ghthbl/llama-zgcm/releases)**: tagged source releases for ZGCM support.
+- **[ZGCM build, conversion and usage notes](docs/ZGCM.md)**: the implementation scope and commands.
+- **[Original model](https://huggingface.co/zgcagi/ZGCM-1-7B)** and **[authors' source repository](https://github.com/zgcagi/ZGCM-1)**: model architecture, training and original documentation.
 
-[ggml](https://github.com/ggml-org/ggml) / [ops](https://github.com/ggml-org/llama.cpp/blob/master/docs/ops.md) / [maintainer PRs](https://github.com/ggml-org/llama.cpp/issues?q=is%3Apr%20is%3Aopen%20draft%3AFalse%20(author%3Argerganov%20OR%20author%3AKitaitiMakoto%20OR%20author%3Adanbev%20OR%20author%3Aaldehir%20OR%20author%3Amax-krasnyansky%20OR%20author%3ACISC%20OR%20author%3Aggerganov%20OR%20author%3Aam17an%20OR%20author%3Ajhen0409%20OR%20author%3Abartowski1182%20OR%20author%3Anikwen%20OR%20author%3Ahipudding%20OR%20author%3Aravi9%20OR%20author%3AServeurpersoCom%20OR%20author%3Apwilkin%20OR%20author%3Areeselevine%20OR%20author%3Angxson%20OR%20author%3Ajeffbolznv%20OR%20author%3Amarty1885%20OR%20author%3A0cc4m%20OR%20author%3ATitaniumtown%20OR%20author%3Aangt%20OR%20author%3AIMbackK%20OR%20author%3Aarthw%20OR%20author%3AJohannesGaessler%20OR%20author%3AORippler%20OR%20author%3Aruixiang63%20OR%20author%3Axctan%20OR%20author%3Aallozaur%20OR%20author%3Ayomaytk%20OR%20author%3Aaendk%20OR%20author%3Awine99%20OR%20author%3Agaugarg-nv%20OR%20author%3Ataronaeo%20OR%20author%3Aforforever73%20OR%20author%3Alhez%20OR%20author%3Anetrunnereve%20OR%20author%3Afairydreaming)%20sort%3Aupdated-desc) / [dev stats](https://github.com/ggml-org/llama.cpp-dev) / [lib llama API](https://github.com/ggml-org/llama.cpp/issues/9289) / [llama-server REST API](https://github.com/ggml-org/llama.cpp/issues/9291)
+The weights and imatrix are hosted on Hugging Face, not in this source repository.
 
-</div>
+## What this fork adds
 
-## Quick start
+Native ZGCM architecture registration, its model graph and tokenizer mapping, a strict Hugging Face-to-GGUF converter, and a reference-payload verifier. The implementation uses llama.cpp's existing GGML operations and hybrid sliding-window/global-attention cache support. No new GGML operations or Metal kernels were added.
 
-A few options to get `llama.cpp` installed on your machine:
+The initial release is based on llama.cpp commit `41abbfd599fbdd3470fcae0a1fb6530ad8403cd7`. Validation primarily covers Apple M2 Max with Metal, plus short CPU checks. Other backends have not been validated for this port.
 
-- Visit https://llama.app and follow the instructions
-- Run with Docker - see our [Docker documentation](docs/docker.md)
-- Download pre-built binaries from the [releases page](https://github.com/ggml-org/llama.cpp/releases)
-- Build from source by cloning this repository - check out [our build guide](docs/build.md)
+## Quick start on Apple Silicon
 
-Once installed:
+Build this fork with CMake and an installed C/C++ toolchain. The download command uses the Hugging Face CLI (`hf`).
 
-```sh
-# Download and run a model directly from Hugging Face
-llama cli -hf ggml-org/Qwen3.5-0.8B-GGUF
+```bash
+git clone --branch feature/zgcm https://github.com/ghthbl/llama-zgcm.git
+cd llama-zgcm
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_METAL=ON
+cmake --build build --config Release -j 8 --target llama-server llama-cli llama-quantize llama-imatrix
 
-# Launch OpenAI-compatible API server
-llama serve -hf ggml-org/Qwen3.5-0.8B-GGUF
+hf download 0xtb/ZGCM-1-7B-GGUF ZGCM-1-7B-Q6_K-IMATRIX-BF16-down28-31.gguf --local-dir .
+
+./build/bin/llama-server \
+    -m ZGCM-1-7B-Q6_K-IMATRIX-BF16-down28-31.gguf \
+    -c 131072 -ngl 99 -fa on -np 1 --jinja \
+    --host 127.0.0.1 --port 8080
 ```
 
-<table align="center">
-    <tr>
-        <td align="center" width=50%>
-            <img width="1310" height="888" alt="VLM session with `llama cli`" src="https://github.com/user-attachments/assets/88726b48-1713-48aa-a525-95a02e78afc4" />
-            <i>VLM session with <b>llama cli</b></i>
-        </td>
-        <td align="center">
-            <img width="1392" height="958" alt="Built-in web UI against `llama serve` running Qwen 3.6" src="https://github.com/user-attachments/assets/b402f972-2e32-4def-8771-8d849f08cf2e" />
-            <i>Built-in web UI against <b>llama serve</b></i>
-        </td>
-    </tr>
-<table>
+Open <http://127.0.0.1:8080> for the built-in chat interface. The local OpenAI-compatible API is at `http://127.0.0.1:8080/v1`.
 
-## Description
+Set context explicitly. The example uses 131,072 tokens; use `-c 262144` for the model's full context when memory permits. Use the embedded chat template. The [tagged release](https://github.com/ghthbl/llama-zgcm/releases/tag/zgcm-v0.1.0) and model card identify the exact source commit used for the published artifacts.
 
-The main goal of `llama.cpp` is to enable LLM (and VLM) inference with minimal setup and state-of-the-art performance on
-a wide range of hardware - locally and in the cloud.
+## Read the limitations before use
 
-- Plain C/C++ implementation without any dependencies
-- Apple silicon is a first-class citizen - optimized via ARM NEON, Accelerate and Metal frameworks
-- AVX, AVX2, AVX512 and AMX support for x86 architectures
-- RVV, ZVFH, ZFH, ZICBOP and ZIHINTPAUSE support for RISC-V architectures
-- 1.5-bit, 2-bit, 3-bit, 4-bit, 5-bit, 6-bit, and 8-bit integer quantization for faster inference and reduced memory use
-- Custom CUDA kernels for running LLMs on NVIDIA GPUs (support for AMD GPUs via HIP and Moore Threads GPUs via MUSA)
-- Vulkan and SYCL backend support
-- CPU+GPU hybrid inference to partially accelerate models larger than the total VRAM capacity
+- **Repeated `!` output:** the model can degenerate into exclamation marks. This has also been observed with the original BF16 model. The model card documents our measurements and links an independent report from the NVFP4 conversion.
+- **Quantization needs BF16 protection:** retain FFN down-projections 28-31 in BF16. Use the explicit tensor override in the model card when making your own quants.
+- **Fidelity is not task accuracy:** matching reference predictions does not guarantee useful answers. Exploratory SVG generation was poor even with the reference and without Hermes. Reliable agent tool calling has not been established.
 
-The `llama.cpp` project is build on top of the [ggml](https://github.com/ggml-org/ggml) library.
+See the [model card](https://huggingface.co/0xtb/ZGCM-1-7B-GGUF) for the evidence, tested settings and limits of the evaluation.
 
-## Supported backends
+## Please use it, improve it, and take it upstream
 
-| Backend | Target devices |
-| --- | --- |
-| [BLAS](docs/build.md#blas-build) | All |
-| [BLIS](docs/backend/BLIS.md) | All |
-| [CANN](docs/build.md#cann) | Ascend NPU |
-| [CUDA](docs/build.md#cuda) | Nvidia GPU |
-| [HIP](docs/build.md#hip) | AMD GPU |
-| [Hexagon](docs/backend/snapdragon/README.md) | Snapdragon |
-| [IBM zDNN](docs/backend/zDNN.md) | IBM Z & LinuxONE |
-| [MUSA](docs/build.md#musa) | Moore Threads GPU |
-| [Metal](docs/build.md#metal-build) | Apple Silicon |
-| [OpenCL](docs/backend/OPENCL.md) | Adreno GPU |
-| [OpenVINO [In Progress]](docs/backend/OPENVINO.md) | Intel CPUs, GPUs, and NPUs |
-| [RPC](https://github.com/ggml-org/llama.cpp/tree/master/tools/rpc) | All |
-| [SYCL](docs/backend/SYCL.md) | Intel GPU |
-| [VirtGPU](docs/backend/VirtGPU.md) | VirtGPU APIR |
-| [Vulkan](docs/build.md#vulkan) | GPU |
-| [WebGPU](docs/build.md#webgpu) | All |
-| [ZenDNN](docs/build.md#zendnn) | AMD CPU |
+If you understand this implementation and find it useful, you are encouraged to use it, modify it, redistribute it, or adapt it for a contribution to the official llama.cpp project. No separate permission from this fork's maintainer is needed, and this fork imposes no additional restrictions beyond the applicable MIT licenses.
 
-## Documentation
+Please retain the applicable copyright and license notices. Anyone taking the work upstream should review and test it, take responsibility for the code they submit, and follow [upstream's contribution guidelines](https://github.com/ggml-org/llama.cpp/blob/master/CONTRIBUTING.md). Upstream maintainers decide whether and how to accept support. Reuse and contributions are welcome; they are not a condition of using this fork.
 
-#### Tools
+## Credits and license
 
-- [cli](tools/cli/README.md)
-- [completion](tools/completion/README.md)
-- [server](tools/server/README.md)
-- [GBNF grammars](grammars/README.md)
+- **llama.cpp and GGML:** the original ggml authors and contributors. Their [MIT license](LICENSE) and copyright notice are retained.
+- **ZGCM-1-7B:** ZGCAGI and the original model contributors. The model's separate MIT notice is included with the [GGUF distribution](https://huggingface.co/0xtb/ZGCM-1-7B-GGUF/blob/main/LICENSE).
+- **Community conversion, port and evaluation:** [0xtb](https://huggingface.co/0xtb) / [ghthbl](https://github.com/ghthbl), with substantial assistance from Claude and OpenAI assistants under the publisher's direction. The publisher is responsible for this release.
 
-#### Development
+## Original llama.cpp documentation
 
-- [How to build](docs/build.md)
-- [Running on Docker](docs/docker.md)
-- [Build on Android](docs/android.md)
-- [Multi-GPU usage](docs/multi-gpu.md)
-- [Performance troubleshooting](docs/development/token_generation_performance_tips.md)
-- [GGML tips & tricks](https://github.com/ggml-org/llama.cpp/wiki/GGML-Tips-&-Tricks)
-- [XCFramework](docs/xcframework.md)
-- [Completions](docs/completions.md)
-- [Models](docs/models.md)
-- [Release process](docs/release.md)
-
-## Contributing
-
-- Contributors can open PRs
-- Collaborators will be invited based on contributions
-- Maintainers can push to branches in the `llama.cpp` repo and merge PRs into the `master` branch
-- Any help with managing issues, PRs and projects is very appreciated!
-- Read the [CONTRIBUTING.md](CONTRIBUTING.md) for more information
-
-## Acknowledgements
-
-- [yhirose/cpp-httplib](https://github.com/yhirose/cpp-httplib) - Single-header HTTP server, used by `llama-server` - MIT license
-- [nothings/stb](https://github.com/nothings/stb) - Single-header image format decoder, used by multimodal subsystem - Public domain
-- [nlohmann/json](https://github.com/nlohmann/json) - Single-header JSON library, used by various tools/examples - MIT License
-- [mackron/miniaudio](https://github.com/mackron/miniaudio) - Single-header audio format decoder, used by multimodal subsystem - Public domain
-- [sheredom/subprocess.h](https://github.com/sheredom/subprocess.h) - Single-header process launching solution for C and C++ - Public domain
+The upstream project supports many other models and platforms. Its **[official README](https://github.com/ggml-org/llama.cpp#readme)**, **[documentation](https://github.com/ggml-org/llama.cpp/tree/master/docs)** and **[releases](https://github.com/ggml-org/llama.cpp/releases)** belong to the upstream project. Refer to the ZGCM instructions above for this fork.
